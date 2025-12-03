@@ -2,23 +2,522 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>首页 - 测试网站</title>
-    <link rel="stylesheet" href="css/style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API反向代理测试工具</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(to right, #4b6cb7, #182848);
+            color: white;
+            padding: 28px 32px;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        h1 i {
+            font-size: 2rem;
+        }
+        
+        .subtitle {
+            font-size: 1rem;
+            opacity: 0.85;
+            font-weight: 300;
+        }
+        
+        .content {
+            padding: 32px;
+        }
+        
+        .section {
+            margin-bottom: 32px;
+        }
+        
+        h2 {
+            color: #2c3e50;
+            border-left: 5px solid #4b6cb7;
+            padding-left: 15px;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .input-with-icon {
+            position: relative;
+        }
+        
+        .input-with-icon i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 16px 16px 16px 50px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            border-color: #4b6cb7;
+            box-shadow: 0 0 0 3px rgba(75, 108, 183, 0.1);
+            outline: none;
+        }
+        
+        .method-selector {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .method-option {
+            flex: 1;
+            text-align: center;
+            padding: 14px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid #e1e8ed;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .method-option:hover {
+            background-color: #edf2f7;
+        }
+        
+        .method-option.selected {
+            border-color: #4b6cb7;
+            background-color: rgba(75, 108, 183, 0.1);
+            color: #4b6cb7;
+        }
+        
+        .btn {
+            padding: 16px 32px;
+            background: linear-gradient(to right, #4b6cb7, #3a56a4);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(75, 108, 183, 0.25);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .result-section {
+            margin-top: 32px;
+        }
+        
+        .result-area {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 24px;
+            margin-top: 15px;
+            border: 2px dashed #dee2e6;
+            min-height: 200px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        
+        .status-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .status-error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .preset-endpoints {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        
+        .preset-btn {
+            padding: 10px 18px;
+            background-color: #e9ecef;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        
+        .preset-btn:hover {
+            background-color: #4b6cb7;
+            color: white;
+        }
+        
+        .info-box {
+            background-color: #e8f4fd;
+            border-left: 4px solid #2196f3;
+            padding: 18px;
+            margin: 24px 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .info-box h3 {
+            color: #1565c0;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .time-info {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 10px;
+            display: flex;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                border-radius: 0;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .method-selector {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <img src="images/logo.png" alt="Logo" class="logo">
-        <nav>
-            <a href="/">首页</a>
-            <a href="/about/">关于我们</a>
-            <a href="/products.html">产品</a>
-        </nav>
-    </header>
-    <main>
-        <h1>欢迎来到测试网站</h1>
-        <p>这是首页内容，版本: <span id="version"></span></p>
-        <button onclick="showMessage()">点击测试</button>
-    </main>
-    <script src="js/main.js"></script>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-exchange-alt"></i> API反向代理测试工具</h1>
+            <p class="subtitle">通过前端界面测试API反向代理配置，验证请求是否正确路由到后端服务</p>
+        </header>
+        
+        <div class="content">
+            <div class="section">
+                <h2><i class="fas fa-sliders-h"></i> 测试配置</h2>
+                <div class="form-group">
+                    <label for="apiEndpoint"><i class="fas fa-link"></i> 后端API端点</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-server"></i>
+                        <input type="text" id="apiEndpoint" placeholder="例如：/api/users 或 https://api.example.com/data">
+                    </div>
+                    <div class="preset-endpoints">
+                        <div class="preset-btn" data-endpoint="/api/health">健康检查</div>
+                        <div class="preset-btn" data-endpoint="/api/users">用户列表</div>
+                        <div class="preset-btn" data-endpoint="/api/products">产品信息</div>
+                        <div class="preset-btn" data-endpoint="/api/time">服务器时间</div>
+                    </div>
+                </div>
+                
+                <div class="method-selector">
+                    <div class="method-option selected" data-method="GET">
+                        <i class="fas fa-download"></i> GET
+                    </div>
+                    <div class="method-option" data-method="POST">
+                        <i class="fas fa-upload"></i> POST
+                    </div>
+                    <div class="method-option" data-method="PUT">
+                        <i class="fas fa-sync-alt"></i> PUT
+                    </div>
+                    <div class="method-option" data-method="DELETE">
+                        <i class="fas fa-trash-alt"></i> DELETE
+                    </div>
+                </div>
+                
+                <div class="form-group" id="postDataGroup">
+                    <label for="postData"><i class="fas fa-edit"></i> 请求数据 (JSON格式，用于POST/PUT)</label>
+                    <div class="input-with-icon">
+                        <i class="fas fa-code"></i>
+                        <textarea id="postData" rows="4" placeholder='{"name": "测试用户", "email": "test@example.com"}'></textarea>
+                    </div>
+                </div>
+                
+                <button id="testButton" class="btn">
+                    <i class="fas fa-play-circle"></i> 开始测试代理请求
+                </button>
+            </div>
+            
+            <div class="info-box">
+                <h3><i class="fas fa-info-circle"></i> 测试说明</h3>
+                <p>此工具将直接通过当前域名（相对路径）访问API端点，以测试反向代理配置。请确保：</p>
+                <ul>
+                    <li>反向代理已正确配置（如Nginx的<code>proxy_pass</code>）</li>
+                    <li>后端服务正在运行且可访问</li>
+                    <li>如有CORS问题，请确保后端已配置适当的CORS头</li>
+                </ul>
+            </div>
+            
+            <div class="result-section">
+                <h2><i class="fas fa-poll"></i> 测试结果</h2>
+                <div id="statusIndicator" class="status-indicator status-pending">准备测试</div>
+                <div class="time-info">
+                    <span id="requestTime">请求时间: --</span>
+                    <span id="responseTime">响应时间: --</span>
+                </div>
+                <div id="resultArea" class="result-area">
+等待测试结果...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM 元素
+        const apiEndpointInput = document.getElementById('apiEndpoint');
+        const methodOptions = document.querySelectorAll('.method-option');
+        const postDataGroup = document.getElementById('postDataGroup');
+        const postDataTextarea = document.getElementById('postData');
+        const testButton = document.getElementById('testButton');
+        const resultArea = document.getElementById('resultArea');
+        const statusIndicator = document.getElementById('statusIndicator');
+        const requestTimeSpan = document.getElementById('requestTime');
+        const responseTimeSpan = document.getElementById('responseTime');
+        const presetButtons = document.querySelectorAll('.preset-btn');
+        
+        let selectedMethod = 'GET';
+        let requestStartTime = 0;
+        
+        // 初始化显示
+        updatePostDataVisibility();
+        
+        // 方法选择器事件
+        methodOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                methodOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedMethod = option.getAttribute('data-method');
+                updatePostDataVisibility();
+            });
+        });
+        
+        // 预设端点事件
+        presetButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const endpoint = button.getAttribute('data-endpoint');
+                apiEndpointInput.value = endpoint;
+                
+                // 根据端点设置建议方法
+                if (endpoint.includes('health') || endpoint.includes('time')) {
+                    selectMethod('GET');
+                }
+            });
+        });
+        
+        // 测试按钮事件
+        testButton.addEventListener('click', performProxyTest);
+        
+        // 更新POST数据区域可见性
+        function updatePostDataVisibility() {
+            if (selectedMethod === 'POST' || selectedMethod === 'PUT') {
+                postDataGroup.style.display = 'block';
+            } else {
+                postDataGroup.style.display = 'none';
+            }
+        }
+        
+        // 选择方法
+        function selectMethod(method) {
+            methodOptions.forEach(opt => {
+                if (opt.getAttribute('data-method') === method) {
+                    opt.classList.add('selected');
+                    selectedMethod = method;
+                } else {
+                    opt.classList.remove('selected');
+                }
+            });
+            updatePostDataVisibility();
+        }
+        
+        // 执行代理测试
+        async function performProxyTest() {
+            const endpoint = apiEndpointInput.value.trim();
+            
+            if (!endpoint) {
+                alert('请输入API端点地址');
+                return;
+            }
+            
+            // 更新状态
+            statusIndicator.textContent = '请求中...';
+            statusIndicator.className = 'status-indicator status-pending';
+            resultArea.textContent = '发送请求中，请稍候...';
+            testButton.disabled = true;
+            testButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 测试进行中...';
+            
+            // 记录开始时间
+            requestStartTime = Date.now();
+            requestTimeSpan.textContent = `请求时间: ${new Date(requestStartTime).toLocaleTimeString()}`;
+            responseTimeSpan.textContent = '响应时间: --';
+            
+            // 准备请求选项
+            const requestOptions = {
+                method: selectedMethod,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            };
+            
+            // 如果是POST或PUT，添加请求体
+            if ((selectedMethod === 'POST' || selectedMethod === 'PUT') && postDataTextarea.value.trim()) {
+                try {
+                    requestOptions.body = postDataTextarea.value.trim();
+                    // 验证JSON格式
+                    JSON.parse(requestOptions.body);
+                } catch (e) {
+                    statusIndicator.textContent = '请求数据格式错误';
+                    statusIndicator.className = 'status-indicator status-error';
+                    resultArea.textContent = `JSON格式错误: ${e.message}\n\n请检查输入的JSON数据格式。`;
+                    testButton.disabled = false;
+                    testButton.innerHTML = '<i class="fas fa-play-circle"></i> 开始测试代理请求';
+                    return;
+                }
+            }
+            
+            try {
+                // 发送请求
+                const response = await fetch(endpoint, requestOptions);
+                const responseTime = Date.now();
+                
+                // 计算响应时间
+                const duration = responseTime - requestStartTime;
+                responseTimeSpan.textContent = `响应时间: ${duration}ms`;
+                
+                // 获取响应文本
+                let responseText;
+                try {
+                    const data = await response.json();
+                    responseText = JSON.stringify(data, null, 2);
+                } catch {
+                    responseText = await response.text();
+                }
+                
+                // 更新结果
+                if (response.ok) {
+                    statusIndicator.textContent = `请求成功 (状态码: ${response.status})`;
+                    statusIndicator.className = 'status-indicator status-success';
+                    
+                    resultArea.textContent = `=== 响应状态: ${response.status} ${response.statusText} ===\n` +
+                                           `=== 响应头 ===\n${formatHeaders(response.headers)}\n\n` +
+                                           `=== 响应体 ===\n${responseText}`;
+                } else {
+                    statusIndicator.textContent = `请求失败 (状态码: ${response.status})`;
+                    statusIndicator.className = 'status-indicator status-error';
+                    
+                    resultArea.textContent = `=== 错误响应: ${response.status} ${response.statusText} ===\n` +
+                                           `=== 响应头 ===\n${formatHeaders(response.headers)}\n\n` +
+                                           `=== 响应体 ===\n${responseText}`;
+                }
+                
+            } catch (error) {
+                // 请求失败
+                statusIndicator.textContent = '请求失败';
+                statusIndicator.className = 'status-indicator status-error';
+                
+                resultArea.textContent = `=== 请求发生错误 ===\n\n错误信息: ${error.message}\n\n` +
+                                       `可能的原因:\n1. 反向代理配置不正确\n2. 后端服务未运行\n3. 网络连接问题\n4. CORS策略限制\n\n` +
+                                       `请检查:\n- 反向代理设置\n- 后端服务状态\n- 网络连通性\n- 浏览器控制台(F12)中的详细信息`;
+                
+                console.error('代理测试错误:', error);
+            } finally {
+                testButton.disabled = false;
+                testButton.innerHTML = '<i class="fas fa-play-circle"></i> 开始测试代理请求';
+            }
+        }
+        
+        // 格式化响应头
+        function formatHeaders(headers) {
+            let headerText = '';
+            headers.forEach((value, key) => {
+                headerText += `${key}: ${value}\n`;
+            });
+            return headerText;
+        }
+        
+        // 示例：页面加载后自动填充一个示例端点
+        window.addEventListener('DOMContentLoaded', () => {
+            // 可以根据需要设置一个默认端点
+            // apiEndpointInput.value = '/api/health';
+        });
+    </script>
 </body>
 </html>
